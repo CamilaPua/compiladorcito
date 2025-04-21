@@ -23,6 +23,7 @@ reserved = {
 # List of token names.
 tokens = (
     'ID',       # variable
+    'ASSIGN',   # =
     'NUMBER',
 
     'DPOINTS',  # ::
@@ -33,16 +34,21 @@ tokens = (
     'NOTEQ',    # <>
 ) + tuple(reserved.values())
 
-literals = ('+', '-', '*', '/', '=', '(', ')', '<', '>')
+literals = ('+', '-', '*', '/', '(', ')', '<', '>')
+
 t_LESSEQ = r'<='
 t_GREATEREQ = r'>='
 t_EQUALS = r'=='
 t_NOTEQ = r'<>'
 t_DPOINTS = r'::'
 
-def t_ID(t):
+def t_ID(t: LexToken):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
     t.type = reserved.get(t.value,'ID')    # Check for reserved words
+    return t
+
+def t_ASSIGN(t:LexToken):
+    r'='
     return t
 
 # A regular expression rule with some action code
