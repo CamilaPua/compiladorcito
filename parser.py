@@ -1,12 +1,15 @@
 import ply.yacc as yacc
-from tokenizer import tokens
+from lexer import tokens
 
 variables = {}
+outputs = []
 
 
 def p_statement(p):
     """statement : assignment DPOINTS
-                 | expression DPOINTS"""
+                 | expression DPOINTS
+                 | write DPOINTS
+                 | capture DPOINTS"""
     p[0] = p[1]
 
 
@@ -65,11 +68,37 @@ def p_factor_expr(p):
     p[0] = p[2]
 
 
+def p_write(p):
+    '''write : WRITE '(' STRING ')'
+             | WRITE '(' expression ')'
+             | WRITE '(' STRING ',' expression ')' '''
+    
+    if len(p) == 5:  # write("mensaje")
+        outputs.append(str(p[3]))
+    elif len(p) == 6:  # write(expresion)
+        outputs.append(str(p[3]))
+    elif len(p) == 7:  # write("mensaje", expresion)
+        outputs.append(str(p[3]) + str(p[5]))
+
+
+def p_capture(p):
+    "capture : CAPTURE '(' ID ')'"
+    outputs.append(f"Input requested for variable '{p[3]}'")
+    variables[p[3]] = "simulated_value" 
+
+
 def p_error(p):
     if p:
         print(f"Syntax error at '{p.value}'. Line: {p.lineno}")
     else:
         print("Syntax error at end of input")
+
+
+def obtener_salidas():
+    global outputs
+    resultado = "\n".join(outputs)
+    outputs = []
+    return resultado
 
 
 parser = yacc.yacc()

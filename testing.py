@@ -1,10 +1,13 @@
-from tokenizer import lexer
+from lexer import lexer
 from parser import parser, variables
 
 
 code = '''
-c = 3 + 4 ::
-a = 5 + c ::
+c = 4 ::
+p = 3 ::
+    variable = (5 + c) * 4 + (30-p) ::
+write(variable) ::
+capture(a) ::
 '''
 
 

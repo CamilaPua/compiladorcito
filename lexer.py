@@ -25,6 +25,7 @@ tokens = (
     'ID',       # variable
     'ASSIGN',   # =
     'NUMBER',
+    'STRING',
 
     'DPOINTS',  # ::
 
@@ -61,6 +62,13 @@ def t_NUMBER(t: LexToken):
 def t_newline(t: LexToken):
     r'\n+'
     t.lexer.lineno += len(t.value)
+
+
+def t_STRING(t: LexToken):
+    r'\"([^\\\n]|(\\.))*?\"'
+    t.value = t.value[1:-1]  # Remove quotes
+    return t
+
 
 # A string containing ignored characters (spaces and tabs)
 t_ignore  = ' \t'
