@@ -1,37 +1,22 @@
 from tokenizer import lexer
-from parser import parser
+from parser import parser, variables
 
 
-
-# while True:
-#     try:
-#         s = input('>> ')
-#     except EOFError:
-#         break
-#     if not s.strip(): continue
-#     result = parser.parse(s)
-#     if result is not None:  # Solo imprime si hay resultado
-#         print(result)
-
-# Test it out
-# write("hello") ::
-# if blabla == delokos then
-#     blabla <= lokos then
-data = '''
-c = 3 + 4 * 10
+code = '''
+c = 3 + 4 ::
+a = 5 + c ::
 '''
-# endif ::
-# a = capture() ::
-
-# Give the lexer some input
-# lexer.input(data)
-
-# # Tokenize
-# for tok in lexer:     # No more input
-#     print(tok.type, tok.value, tok.lineno, tok.lexpos)
 
 
-result = parser.parse(data)
+for line in code.split('\n'):
+    line = line.strip()
+    if line:
+        result = parser.parse(line)
 
-if result is not None:  # Solo imprime si hay resultado
-    print(result)
+        if result is not None:  # Solo imprime si hay resultado
+            print(result)
+
+
+print("\nVariables definidas:")
+for var, val in variables.items():
+    print(f"{var} = {val}")

@@ -1,13 +1,12 @@
 import ply.yacc as yacc
 from tokenizer import tokens
 
-
 variables = {}
 
 
 def p_statement(p):
-    '''statement : assignment
-                 | expression'''
+    """statement : assignment DPOINTS
+                 | expression DPOINTS"""
     p[0] = p[1]
 
 
@@ -15,15 +14,6 @@ def p_assignment(p):
     "assignment : ID ASSIGN expression"
     variables[p[1]] = p[3]
     p[0] = p[3]
-
-
-def p_expression_var(p):
-    "expression : ID"
-    try:
-        p[0] = variables[p[1]]
-    except KeyError:
-        print(f"Error: Variable '{p[1]}' not defined.")
-        p[0] = 0  # Default value
 
 
 def p_expression_plus(p):
@@ -61,12 +51,20 @@ def p_factor_num(p):
     p[0] = p[1]
 
 
+def p_factor_var(p):
+    "factor : ID"
+    try:
+        p[0] = variables[p[1]]
+    except KeyError:
+        print(f"Error: Variable '{p[1]}' not defined.")
+        p[0] = 0  # Default value
+
+
 def p_factor_expr(p):
     "factor : '(' expression ')'"
     p[0] = p[2]
 
 
-# Error rule for syntax errors
 def p_error(p):
     if p:
         print(f"Syntax error at '{p.value}'. Line: {p.lineno}")
@@ -74,5 +72,4 @@ def p_error(p):
         print("Syntax error at end of input")
 
 
-# Build the parser
 parser = yacc.yacc()
