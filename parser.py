@@ -94,11 +94,11 @@ def p_error(p):
         print("Syntax error at end of input")
 
 
-def obtener_salidas():
+def get_outputs():
     global outputs
-    resultado = "\n".join(outputs)
+    results = "\n".join(outputs)
     outputs = []
-    return resultado
+    return results
 
 
 parser = yacc.yacc()
