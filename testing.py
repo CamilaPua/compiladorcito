@@ -3,11 +3,7 @@ from parser import parser, variables
 
 
 code = '''
-c = 4 ::
-p = 3 ::
-    variable = (5 + c) * 4 + (30-p) ::
-write(variable) ::
-capture(a) ::
+a = 5+2 ::
 '''
 
 

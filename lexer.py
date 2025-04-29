@@ -9,15 +9,15 @@ reserved = {
     'not': 'NOT',
 
     # control structures
-    'if' : 'IF',
-    'then' : 'THEN',
-    'else' : 'ELSE',
-    'endif' : 'ENDIF',
-    'while' : 'WHILE',
+    'if': 'IF',
+    'then': 'THEN',
+    'else': 'ELSE',
+    'endif': 'ENDIF',
+    'while': 'WHILE',
 
     # others
-    'write' : 'WRITE',
-    'capture' : 'CAPTURE',
+    'write': 'WRITE',
+    'capture': 'CAPTURE',
 }
 
 # List of token names.
@@ -30,7 +30,7 @@ tokens = (
     'DPOINTS',  # ::
 
     'LESSEQ',   # <=
-    'GREATEREQ',# >=
+    'GREATEREQ',  # >=
     'EQUALS',   # ==
     'NOTEQ',    # <>
 ) + tuple(reserved.values())
@@ -43,14 +43,17 @@ t_EQUALS = r'=='
 t_NOTEQ = r'<>'
 t_DPOINTS = r'::'
 
+
 def t_ID(t: LexToken):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
-    t.type = reserved.get(t.value,'ID')    # Check for reserved words
+    t.type = reserved.get(t.value, 'ID')    # Check for reserved words
     return t
 
-def t_ASSIGN(t:LexToken):
+
+def t_ASSIGN(t: LexToken):
     r'='
     return t
+
 
 # A regular expression rule with some action code
 def t_NUMBER(t: LexToken):
@@ -58,10 +61,11 @@ def t_NUMBER(t: LexToken):
     t.value = int(t.value)
     return t
 
+
 # Define a rule so we can track line numbers
-def t_newline(t: LexToken):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
+# def t_newline(t: LexToken):
+#     r'\n+'
+#     t.lexer.lineno += len(t.value)
 
 
 def t_STRING(t: LexToken):
@@ -71,12 +75,14 @@ def t_STRING(t: LexToken):
 
 
 # A string containing ignored characters (spaces and tabs)
-t_ignore  = ' \t'
+t_ignore = ' \t'
+
 
 # Error handling rule
 def t_error(t: LexToken):
-    print("Illegal character '%s'" % t.value[0])
+    print(f"Illegal character '{t.value[0]}'")
     t.lexer.skip(1)
+
 
 # Build the lexer
 lexer = lex.lex()
