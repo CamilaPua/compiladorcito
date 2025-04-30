@@ -136,8 +136,7 @@ def p_assignment(p):
 def p_expression_plus(p):
     "expression : expression '+' term"
     if type(p[1]) != type(p[3]):
-        error_message = f"Error: No puedes sumar {type(p[1])} con {type(p[3])}"
-        print(error_message)
+        error_message = f"Error: You cannot add {type(p[1]).__name__} with {type(p[3]).__name__}"
         output.append(error_message)
     else:
         p[0] = p[1] + p[3]
@@ -145,7 +144,11 @@ def p_expression_plus(p):
 
 def p_expression_minus(p):
     "expression : expression '-' term"
-    p[0] = p[1] - p[3]
+    if type(p[1]) != type(p[3]):
+        error_message = f"Error: You cannot subtract {type(p[3]).__name__} to {type(p[1]).__name__}"
+        output.append(error_message)
+    else:
+        p[0] = p[1] - p[3]
 
 
 def p_expression_term(p):
@@ -155,12 +158,19 @@ def p_expression_term(p):
 
 def p_term_times(p):
     "term : term '*' factor"
-    p[0] = p[1] * p[3]
-
+    if type(p[1]) != type(p[3]):
+        error_message = f"Error: You cannot multiply {type(p[1]).__name__} with {type(p[3]).__name__}"
+        output.append(error_message)
+    else:
+        p[0] = p[1] * p[3]
 
 def p_term_div(p):
     "term : term '/' factor"
-    p[0] = p[1] / p[3]
+    if type(p[1]) != type(p[3]):
+        error_message = f"Error: You cannot divide {type(p[1]).__name__} with {type(p[3]).__name__}"
+        output.append(error_message)
+    else:
+        p[0] = p[1] / p[3]
 
 
 def p_term_factor(p):
