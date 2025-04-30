@@ -2,35 +2,36 @@ import ply.yacc as yacc
 from lexer import tokens  # Asume que tu código anterior está en lexer.py
 
 variables = {}
+functions = {}
 output = []
 
 
 def p_program(p):
-    'program : statement_list'
+    "program : statement_list"
 
 
 def p_statement_list(p):
-    '''statement_list : statement
-                      | statement_list DPOINTS statement'''
+    """statement_list : statement
+                      | statement DPOINTS statement_list"""
     if len(p) == 2:
         p[0] = [p[1]]
     else:
-        p[1].append(p[3])
-        p[0] = p[1]
+        p[0] = [p[1]] + p[3]
 
 
 def p_statement(p):
-    '''statement : assignment DPOINTS
+    """statement : assignment DPOINTS
                  | write DPOINTS
                  | capture DPOINTS
                  | expression DPOINTS
-                 | if_statement DPOINTS'''
+                 | if_statement DPOINTS
+                 | function_statement DPOINTS"""
 
 
 def p_write(p):
-    '''write : WRITE '(' STRING ')'
+    """write : WRITE '(' STRING ')'
              | WRITE '(' expression ')'
-             | WRITE '(' STRING ',' expression ')' '''
+             | WRITE '(' STRING ',' expression ')' """
 
     if len(p) == 5:  # write("message")
         output.append(str(p[3]))
@@ -47,15 +48,62 @@ def p_capture(p):
     variables[var] = "valor_simulado"  # Puedes poner aquí un valor fijo
 
 
+def p_function_def(p):
+    "function_statement : DEF ID '(' params ')' '{' statement_list '}'"
+    functions[p[2]] = p[4]  # t[4] es la lista de parámetros
+    # Opcional: guardar statements para análisis futuro
+
+
+def p_params_multiple(p):
+    "params : ID ',' params"
+    p[0] = [p[1]] + p[3]
+
+
+def p_params_single(p):
+    "params : ID"
+    p[0] = [p[1]]
+
+
+def p_params_empty(p):
+    "params : "
+    p[0] = []
+
+
+def p_function_call(p):
+    "term : ID '(' arguments ')'"
+    func_name = p[1]
+    if func_name not in functions:
+        output.append(f"Error: Function '{func_name}' not declared.")
+    elif len(functions[func_name]) != len(p[3]):
+        output.append(
+            f"Error: Function '{func_name}' expects {len(functions[func_name])} arguments, received {len(p[3])}.")
+    p[0] = 0  # puede devolver un valor de retorno en el futuro
+
+
+def p_arguments_multiple(p):
+    "arguments : expression ',' arguments"
+    p[0] = [p[1]] + p[3]
+
+
+def p_arguments_single(p):
+    "arguments : expression"
+    p[0] = [p[1]]
+
+
+def p_arguments_empty(p):
+    "arguments : "
+    p[0] = []
+
+
 def p_if_statement(p):
-    """if_statement : IF '(' condition ')' THEN statement_list opt_else ENDIF
+    """if_statement : IF '(' condition ')' THEN statement_list ENDIF
                     | if_statement"""
     p[0] = ('if', p[3], p[6], p[7])
 
 
 def p_opt_else(p):
-    '''opt_else : ELSE statement_list
-                | empty'''
+    """opt_else : ELSE statement_list
+                | empty"""
     if len(p) == 3:
         p[0] = p[2]
     else:
@@ -97,18 +145,23 @@ def p_boolean_expr_rel(p):
     p[0] = (p[2], p[1], p[3])
 
 
-def p_boolean_expr_exp(p):
-    "boolean_expr : expression"
-    p[0] = p[1]
+def p_condition(p):
+    """condition : expression"""  # Acepta cualquier expresión
+    if isinstance(p[1], bool):
+        p[0] = p[1]
+    else:
+        error_msg = f"Error: Condition must be boolean, got {p[1]} (type: {type(p[1]).__name__})"
+        output.append(error_msg)
+        p[0] = False
 
 
 def p_relational_operator(p):
-    '''relational_operator : '<'
+    """relational_operator : '<'
                            | '>'
                            | LESSEQ
                            | GREATEREQ
                            | EQUALS
-                           | NOTEQ'''
+                           | NOTEQ"""
     p[0] = p[1]
 
 
@@ -116,7 +169,6 @@ def p_assignment(p):
     "assignment : ID ASSIGN expression"
     if p[3] is None:
         error_message = f"Error: Incomplete assignment for '{p[1]}'"
-        print(error_message)
         output.append(error_message)
         p[0] = None
     else:
@@ -125,8 +177,7 @@ def p_assignment(p):
                 variables[p[1]] = p[3]
                 p[0] = p[3]
             else:
-                error_message = f"Error: Incompatibilidad en tipo de dato '{p[1]}' es {type(variables[p[1]])} no {type(p[3])}."
-                print(error_message)
+                error_message = f"Error: Incompatibility in data type. '{p[1]}' is {type(variables[p[1]]).__name__} not {type(p[3]).__name__}."
                 output.append(error_message)
         except KeyError:
             variables[p[1]] = p[3]
@@ -164,6 +215,7 @@ def p_term_times(p):
     else:
         p[0] = p[1] * p[3]
 
+
 def p_term_div(p):
     "term : term '/' factor"
     if type(p[1]) != type(p[3]):
@@ -199,7 +251,6 @@ def p_factor_id(p):
         p[0] = variables[p[1]]
     except KeyError:
         error_message = f"Error: Variable '{p[1]}' not defined."
-        print(error_message)
         output.append(error_message)
 
         p[0] = 0
@@ -212,12 +263,10 @@ def p_error(p):
     global errorFound
     errorFound = True
     if p:
-        error_message = f"Syntax error at '{p.value}'. Line: {p.lineno}"
-        print(error_message)
+        error_message = f"Syntax error at '{p.value}'."
         output.append(error_message)
     else:
         error_message = "Syntax error at end of input"
-        print(error_message)
         output.append(error_message)
 
 
@@ -229,4 +278,4 @@ def get_output():
 
 
 # Build the parser
-parser = yacc.yacc(start='program')
+parser = yacc.yacc(start="program")

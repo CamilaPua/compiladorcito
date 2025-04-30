@@ -14,6 +14,7 @@ reserved = {
     'else': 'ELSE',
     'endif': 'ENDIF',
     'while': 'WHILE',
+    'def': 'DEF',
 
     # others
     'write': 'WRITE',
@@ -35,7 +36,7 @@ tokens = (
     'NOTEQ',    # <>
 ) + tuple(reserved.values())
 
-literals = ('+', '-', '*', '/', '(', ')', '<', '>')
+literals = ('+', '-', '*', '/', '(', ')', '{', '}', '<', '>', ',')
 
 t_LESSEQ = r'<='
 t_GREATEREQ = r'>='
