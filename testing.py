@@ -4,17 +4,14 @@ from clear_code import preprocess_code
 
 
 code = '''
-i = 0 ::
-while (i < 2) do
-    write(i) ::
-    i = i + 1::
-endwhile
+i = 1 ::
+write(i, " es par") ::
 '''
 final_code = preprocess_code(code)
 
 ast = parser.parse(final_code)
 
-print(run(ast))
+run(ast)
 
 
 

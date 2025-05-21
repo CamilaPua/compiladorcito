@@ -44,9 +44,8 @@ def p_statement(p):
 
 
 def p_write(p):
-    """write : WRITE '(' STRING ')'
-             | WRITE '(' expression ')'
-             | WRITE '(' STRING ',' expression ')' """
+    """write : WRITE '(' expression ')'
+             | WRITE '(' expression ',' expression ')' """
 
     if len(p) == 5:  # write("mensaje")
         p[0] = ('WRITE', p[3])
@@ -131,7 +130,8 @@ def p_expression(p):
     """expression : term
                   | expression '+' term
                   | expression '-' term
-                  | condition"""
+                  | condition
+                  | STRING"""
     if len(p) == 4:
         if p[1] == '(':
             p[0] = p[2]
